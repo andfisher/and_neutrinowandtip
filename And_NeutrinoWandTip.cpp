@@ -17,6 +17,8 @@ void And_NeutrinoWandTip::begin(And_RGBLed tipLight, Adafruit_NeoPixel jewel)
 	_jewel = jewel;
 	_tipLight = tipLight;
 	_mode = 1;
+
+	_jewel.begin();
 }
 void And_NeutrinoWandTip::activate()
 {
@@ -76,6 +78,7 @@ void And_NeutrinoWandTip::_animateSlimeStream() {
 		}
 		_jewel.setPixelColor(i, n);
 	}
+	_jewel.show();
 }
 void And_NeutrinoWandTip::_animateStasisStream() {
 	// One of the LEDs will be the red/purple lightning
@@ -100,6 +103,7 @@ void And_NeutrinoWandTip::_animateStasisStream() {
 		}
 		_jewel.setPixelColor(i, n);
 	}
+	_jewel.show();
 }
 void And_NeutrinoWandTip::_animateMaxProtonStream() {
 	// One of the LEDs will be the blue lightning
@@ -126,6 +130,7 @@ void And_NeutrinoWandTip::_animateMaxProtonStream() {
 		}
 		_jewel.setPixelColor(i, n);
 	}
+	_jewel.show();
 }
 void And_NeutrinoWandTip::_animateProtonStream()
 {
@@ -152,6 +157,7 @@ void And_NeutrinoWandTip::_animateProtonStream()
 		}
 		_jewel.setPixelColor(i, n);
 	}
+	_jewel.show();
 }
 
 uint32_t _getRedShade(Adafruit_NeoPixel _jewel)
