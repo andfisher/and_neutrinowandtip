@@ -8,21 +8,26 @@ And_NeutrinoWandTip::And_NeutrinoWandTip()
 {
 }
 
-And_NeutrinoWandTip::And_NeutrinoWandTip(And_RGBLed tipLight, Adafruit_NeoPixel jewel)
+And_NeutrinoWandTip::And_NeutrinoWandTip(And_RGBLed &tipLight, Adafruit_NeoPixel &jewel, int brightness, int delay)
 {
-	begin(tipLight, jewel);
+	begin(tipLight, jewel, brightness, delay);
 }
-void And_NeutrinoWandTip::begin(And_RGBLed tipLight, Adafruit_NeoPixel jewel)
+void And_NeutrinoWandTip::begin(And_RGBLed &tipLight, Adafruit_NeoPixel &jewel, int brightness, int delay)
 {
+	jewel.begin();
+
 	_jewel = jewel;
 	_tipLight = tipLight;
-	_mode = 1;
+	_mode = 0;
+	_delay = delay;
 
-	_jewel.begin();
+	_jewel.setBrightness(brightness);
+	_jewel.show();
 }
 void And_NeutrinoWandTip::activate()
 {
 	_active = true;
+	_nextUpdate = millis() + _delay;
 }
 void And_NeutrinoWandTip::deactivate()
 {
@@ -30,10 +35,16 @@ void And_NeutrinoWandTip::deactivate()
 	_tipLight.setColor(0, 0, 0);
 	_active = false;
 }
-void And_NeutrinoWandTip::update()
+void And_NeutrinoWandTip::update(unsigned long ms)
 {
 	int intensity;
+
 	if (_active) {
+
+		if (ms < _nextUpdate) {
+			return;
+		}
+
 		// Set the tip light to a random intensity of white
 		intensity = random(0, 256);
 		_tipLight.setColor(intensity, intensity, intensity);
@@ -52,6 +63,8 @@ void And_NeutrinoWandTip::update()
 			default:
 				_animateProtonStream();
 		}
+
+		_nextUpdate = ms + _delay;
 	}
 }
 
@@ -61,20 +74,20 @@ void And_NeutrinoWandTip::_animateSlimeStream() {
 	int blue = random(0, TIP_JEWEL_SIZE);
 	uint32_t n;
 
-	for (int i = 0; i > TIP_JEWEL_SIZE; i++) {
+	for (int i = 0; i < TIP_JEWEL_SIZE; i++) {
 
 		if (i == yellow) {
 
 			// Set the current LED to a shade of yellow
-			n = _getYellowShade(_jewel);
+			n = _getYellowShade();
 		} else if (i == blue) {
 
 			// Set the current LED to a shade of blue
-			n = _getBlueShade(_jewel);
+			n = _getBlueShade();
 		} else {
 
 			// Set the current LED to a shade of green
-			n = _getGreenShade(_jewel);
+			n = _getGreenShade();
 		}
 		_jewel.setPixelColor(i, n);
 	}
@@ -86,20 +99,20 @@ void And_NeutrinoWandTip::_animateStasisStream() {
 	int purple = random(0, TIP_JEWEL_SIZE);
 	uint32_t n;
 
-	for (int i = 0; i > TIP_JEWEL_SIZE; i++) {
+	for (int i = 0; i < TIP_JEWEL_SIZE; i++) {
 
 		if (i == red) {
 
 			// Set the current LED to a shade of blue
-			n = _getRedShade(_jewel);
+			n = _getRedShade();
 		} else if (i == purple) {
 
 			// Set the current LED to a shade of red
-			n = _getPurpleShade(_jewel);
+			n = _getPurpleShade();
 		} else {
 
 			// Set the current LED to a shade of blue
-			n = _getBlueShade(_jewel);
+			n = _getBlueShade();
 		}
 		_jewel.setPixelColor(i, n);
 	}
@@ -111,22 +124,22 @@ void And_NeutrinoWandTip::_animateMaxProtonStream() {
 	int red = random(0, TIP_JEWEL_SIZE);
 	uint32_t n;
 
-	for (int i = 0; i > TIP_JEWEL_SIZE; i++) {
+	for (int i = 0; i < TIP_JEWEL_SIZE; i++) {
 
 		if (i == blue) {
 
 			// Set the current LED to a shade of blue
-			n = _getBlueShade(_jewel);
+			n = _getBlueShade();
 		} else if (i-1 == red || i == red || i+1 == red) {
 
 			// Set the current LED to a shade of red, more
 			// likely than in standard proton stream
-			n = _getRedShade(_jewel);
+			n = _getYellowShade();
 		} else {
 
 			// Set the current LED to a shade between
 			// orange and yellow
-			n = _getYellowShade(_jewel);
+			n = _getRedShade();
 		}
 		_jewel.setPixelColor(i, n);
 	}
@@ -139,28 +152,28 @@ void And_NeutrinoWandTip::_animateProtonStream()
 	int red = random(0, TIP_JEWEL_SIZE);
 	uint32_t n;
 
-	for (int i = 0; i > TIP_JEWEL_SIZE; i++) {
+	for (int i = 0; i < TIP_JEWEL_SIZE; i++) {
 
 		if (i == blue) {
 
 			// Set the current LED to a shade of blue
-			n = _getBlueShade(_jewel);
+			n = _getBlueShade();
 		} else if (i == red) {
 
 			// Set the current LED to a shade of red
-			n = _getRedShade(_jewel);
+			n = _getRedShade();
 		} else {
 
 			// Set the current LED to a shade between
 			// orange and yellow
-			n = _getYellowShade(_jewel);
+			n = _getYellowShade();
 		}
 		_jewel.setPixelColor(i, n);
 	}
 	_jewel.show();
 }
 
-uint32_t _getRedShade(Adafruit_NeoPixel _jewel)
+uint32_t And_NeutrinoWandTip::_getRedShade()
 {
 	int r = random(100, 256);
 	int g = 0;
@@ -174,7 +187,7 @@ uint32_t _getRedShade(Adafruit_NeoPixel _jewel)
 	return _jewel.Color(r, 0, 0);
 }
 
-uint32_t _getGreenShade(Adafruit_NeoPixel _jewel)
+uint32_t And_NeutrinoWandTip::_getGreenShade()
 {
 	int r = random(220, 256);
 	int g = random(100, 256);
@@ -185,7 +198,7 @@ uint32_t _getGreenShade(Adafruit_NeoPixel _jewel)
 	return _jewel.Color(0, g, 0);
 }
 
-uint32_t _getBlueShade(Adafruit_NeoPixel _jewel)
+uint32_t And_NeutrinoWandTip::_getBlueShade()
 {
 	int g = random(0, 256);
 	int b = 255;
@@ -195,14 +208,14 @@ uint32_t _getBlueShade(Adafruit_NeoPixel _jewel)
 	return _jewel.Color(0, g, b);
 }
 
-uint32_t _getPurpleShade(Adafruit_NeoPixel _jewel)
+uint32_t And_NeutrinoWandTip::_getPurpleShade()
 {
 	int r = random(100, 256);
 	int b = random(100, 256);
 	return _jewel.Color(r, 0, b);
 }
 
-uint32_t _getYellowShade(Adafruit_NeoPixel _jewel)
+uint32_t And_NeutrinoWandTip::_getYellowShade()
 {
 	// 1 in 7 chance of pure white
 	if (random(0, 7) == 6) {

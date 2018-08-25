@@ -21,28 +21,29 @@
 
 class And_NeutrinoWandTip {
 	public:
-		And_NeutrinoWandTip(And_RGBLed tipLight, Adafruit_NeoPixel jewel);
+		And_NeutrinoWandTip(And_RGBLed &tipLight, Adafruit_NeoPixel &jewel, int brightness, int delay);
 		And_NeutrinoWandTip(void);
-		void begin(And_RGBLed tipLight, Adafruit_NeoPixel jewel);
+		void begin(And_RGBLed &tipLight, Adafruit_NeoPixel &jewel, int brightness, int delay);
 		void activate();
 		void deactivate();
-		void update();
+		void update(unsigned long ms);
 		void setMode(int mode);
 	private:
 		And_RGBLed _tipLight;
 		Adafruit_NeoPixel _jewel;
 		int _mode;
+		unsigned int _delay;
+		unsigned long _nextUpdate;
 		bool _active;
 		void _animateProtonStream();
 		void _animateSlimeStream();
 		void _animateStasisStream();
 		void _animateMaxProtonStream();
-
-		uint32_t _getRedShade(Adafruit_NeoPixel _jewel);
-		uint32_t _getGreenShade(Adafruit_NeoPixel _jewel);
-		uint32_t _getBlueShade(Adafruit_NeoPixel _jewel);
-		uint32_t _getPurpleShade(Adafruit_NeoPixel _jewel);
-		uint32_t _getYellowShade(Adafruit_NeoPixel _jewel);
+		uint32_t _getRedShade();
+		uint32_t _getGreenShade();
+		uint32_t _getBlueShade();
+		uint32_t _getPurpleShade();
+		uint32_t _getYellowShade();
 };
 typedef And_NeutrinoWandTip And_NeutrinoWandTip;
 
